@@ -2,6 +2,7 @@ import { StatusBar, Text, View ,Image} from "react-native";
 import React from 'react';
 import { Colors,Sizes,FONTS, SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/Theme";
 import CustomButton from "@/components/CustomButton";
+
 export default function Index() {
   return (
     <View

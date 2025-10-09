@@ -106,7 +106,33 @@ export const courses = [
       description:
         "Examines hardware, software, data, procedures, and people in IS.",
     },
-  ];
+];
+   export const products = [
+      {
+        id: 1,
+        name: "Laptop",
+        price: 999,
+        category: "Electronics",
+        ratings: [4, 5, 3, 4, 5],
+        description: "High-performance laptop",
+      },
+      {
+        id: 2,
+        name: "Smartphone",
+        price: 699,
+        category: "Electronics",
+        ratings: [5, 4, 5, 3],
+        description: "Latest smartphone model",
+      },
+      {
+        id: 3,
+        name: "Headphones",
+        price: 199,
+        category: "Electronics",
+        ratings: [4, 3, 4, 2, 5, 4],
+        description: "Noise-cancelling headphones",
+      },
+    ];
 
 
  
