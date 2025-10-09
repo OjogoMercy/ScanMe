@@ -25,7 +25,9 @@ export const Colors = {
   grey3: "#efefef",
   gray4: "#B4B5B5",
   red: "red",
-  lightGray:"#ccc"
+  lightGray: "#ccc",
+  lightBlue:'#90d5ff',
+  offWhite:"#f2f2f2"
 };
 
 export const Sizes = {
