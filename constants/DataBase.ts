@@ -107,7 +107,7 @@ export const courses = [
         "Examines hardware, software, data, procedures, and people in IS.",
     },
 ];
-   export const products = [
+   export    const products = [
       {
         id: 1,
         name: "Laptop",
