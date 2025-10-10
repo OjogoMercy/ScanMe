@@ -22,6 +22,20 @@ const general = StyleSheet.create({
     ...FONTS.h1,
     color: Colors.black,
   },
+  overlay: {
+    opacity: 1,
+    height: SCREEN_HEIGHT * 1,
+    width: SCREEN_WIDTH * 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  overlayCam: {
+    height: SCREEN_HEIGHT * 0.4,
+    width: SCREEN_WIDTH * 0.7,
+    borderRadius: Sizes.h1,
+    opacity: 0.5,
+    backgroundColor: "black",
+  },
   button: {
     backgroundColor: Colors.primary,
     paddingVertical: SCREEN_HEIGHT * 0.02,
@@ -38,8 +52,8 @@ const general = StyleSheet.create({
     borderRadius: SCREEN_WIDTH * 0.02,
     paddingHorizontal: SCREEN_WIDTH * 0.04,
     paddingVertical: SCREEN_HEIGHT * 0.025,
-      fontSize: SCREEN_WIDTH * 0.04,
-    flex:1
+    fontSize: SCREEN_WIDTH * 0.04,
+    flex: 1,
   },
   disabled: {
     backgroundColor: Colors.sky,
@@ -82,12 +96,12 @@ const general = StyleSheet.create({
     alignSelf: "center",
     marginVertical: SCREEN_HEIGHT * 0.02,
   },
-  row:{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
-boldText:{ ...FONTS.h3, marginTop: SCREEN_HEIGHT * 0.02 },
+  boldText: { ...FONTS.h3, marginTop: SCREEN_HEIGHT * 0.02 },
 });
 
 export default general;

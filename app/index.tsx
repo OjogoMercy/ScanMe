@@ -1,10 +1,11 @@
-import { StatusBar, Text, View ,Image} from "react-native";
+import { StatusBar, Text, View ,Image, Pressable, TouchableOpacity} from "react-native";
 import React from 'react';
 import { Colors,Sizes,FONTS, SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/Theme";
 import CustomButton from "@/components/CustomButton";
 // import {useCameraPermissions} from "expo-camera";
 import { Camera, useCameraPermissions, CameraType } from "expo-camera";  
 import { Link } from "expo-router";
+import general from "@/constants/General";
 
 export default function Index() {
   const [permission, requestPermissions] = useCameraPermissions();
@@ -27,14 +28,14 @@ export default function Index() {
       <Image
         source={require("../assets/images/man.jpg")}
         style={{
-          height: SCREEN_HEIGHT * 0.7,
+          height: SCREEN_HEIGHT * 0.6,
           width: SCREEN_WIDTH * 0.8,
           resizeMode: "contain",
         }}
       />
       <CustomButton title="Request Permissions" onPress={requestPermissions} />
-      <Link href='/CameraScreen'>
-        <CustomButton title="Scan Me" onPress={permissionStatus} />
+      <Link href='/CameraScreen' style={general.button}>
+          <Text style={general.buttonText}>Scan Me</Text>
       </Link>
     </View>
   );
