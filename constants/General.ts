@@ -23,18 +23,18 @@ const general = StyleSheet.create({
     color: Colors.black,
   },
   overlay: {
-    opacity: 1,
-    height: SCREEN_HEIGHT * 1,
+    opacity: 0.5,
+    height: SCREEN_HEIGHT * 0.35,
     width: SCREEN_WIDTH * 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "black",
   },
   overlayCam: {
     height: SCREEN_HEIGHT * 0.4,
     width: SCREEN_WIDTH * 0.7,
     borderRadius: Sizes.h1,
     opacity: 0.5,
-    backgroundColor: "black",
   },
   button: {
     backgroundColor: Colors.primary,
