@@ -9,24 +9,32 @@ import * as Haptics from 'expo-haptics'
 
 const CameraScreen = () => {
    const [hasPermission, setHasPermission] = React.useState(null);
-  const permissionStatus = Boolean(permissions?.granted)
+  // const permissionStatus = Boolean(permissions?.granted)
 
-const [scanned, setScanned] = useState(false);
-
-
-
-
-
+  const [scanned, setScanned] = useState(false);
+    React.useEffect(() => {
+      (async () => {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        setHasPermission(status === "granted");
+      })();
+    }, []);
   const handleBarCodeScanned = async ({ data }) => {
       if (!scanned) {
         setScanned(true);
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        Linking.openURL(data);
-        setTimeout(() => setScanned(false), 3000); 
-      }else {
-      Alert.alert("Scanned Data", data);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+        Alert.alert("Scanned Successfully")
+         const isURL =   data.startsWith("http://") || data.startsWith("https://");
+         if (isURL) {
+           Linking.openURL(data);
+           setTimeout(()=>  Alert.alert("Opening URL", data),5000)
+  } else {
+    Alert.alert("Scanned Data", data);
+  }
+
+  setTimeout(() => setScanned(false), 10000);
+};
     }
-  };
+  
 React.useEffect(() => {
   (async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
@@ -70,8 +78,8 @@ if (hasPermission === false) {
       </View>
     </View>
   );
-}
 
+  }
 export default CameraScreen
 
 const styles = StyleSheet.create({
