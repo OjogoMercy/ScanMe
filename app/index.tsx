@@ -2,7 +2,6 @@ import { StatusBar, Text, View ,Image, Pressable, TouchableOpacity} from "react-
 import React from 'react';
 import { Colors,Sizes,FONTS, SCREEN_HEIGHT, SCREEN_WIDTH } from "@/constants/Theme";
 import CustomButton from "@/components/CustomButton";
-// import {useCameraPermissions} from "expo-camera";
 import { Camera, useCameraPermissions, CameraType } from "expo-camera";  
 import { Link } from "expo-router";
 import general from "@/constants/General";
