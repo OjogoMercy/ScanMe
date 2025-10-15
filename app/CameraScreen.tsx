@@ -11,30 +11,43 @@ const CameraScreen = () => {
    const [hasPermission, setHasPermission] = React.useState(null);
   // const permissionStatus = Boolean(permissions?.granted)
 
-  const [scanned, setScanned] = useState(false);
-    React.useEffect(() => {
-      (async () => {
-        const { status } = await Camera.requestCameraPermissionsAsync();
-        setHasPermission(status === "granted");
-      })();
-    }, []);
-  const handleBarCodeScanned = async ({ data }) => {
-      if (!scanned) {
-        setScanned(true);
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        Alert.alert("Scanned Successfully")
-         const isURL =   data.startsWith("http://") || data.startsWith("https://");
-         if (isURL) {
-           Linking.openURL(data);
-           setTimeout(()=>  Alert.alert("Opening URL", data),5000)
-  } else {
-    Alert.alert("Scanned Data", data);
-  }
+const [scanned, setScanned] = useState(false);
 
+React.useEffect(() => {
+  (async () => {
+    const { status } = await Camera.requestCameraPermissionsAsync();
+    setHasPermission(status === "granted");
+  })();
+}, []);
+
+const handleBarCodeScanned = async ({ data }) => {
+  if (scanned) return; 
+
+  setScanned(true);
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+  const scannedData = data.trim();
+// regEx to check if the   QRcode is valid 
+  const isURL = /^https?:\/\/[\w\-]+(\.[\w\-]+)+[/#?]?.*$/.test(scannedData);
+
+  if (isURL) {
+    Alert.alert("Valid QR Code", "Opening link...");
+    try {
+      await Linking.openURL(scannedData);
+    } catch (error) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert("Error", "Unable to open the link.");
+    }
+  } else {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    Alert.alert(
+      "Invalid QR Code",
+      "This QR code doesn't contain a valid link."
+    );
+  }
   setTimeout(() => setScanned(false), 10000);
 };
-    }
-  
+
 React.useEffect(() => {
   (async () => {
     const { status } = await Camera.requestCameraPermissionsAsync();
