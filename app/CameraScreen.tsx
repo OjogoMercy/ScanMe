@@ -1,5 +1,5 @@
 import { StatusBar, StyleSheet, Text, View, Alert } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CameraView, Camera } from "expo-camera";
 import general from "@/constants/General";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, Sizes } from "@/constants/Theme";
@@ -12,7 +12,6 @@ const CameraScreen = () => {
   const [hasPermission, setHasPermission] = React.useState(null);
   const [lastScannedData, setLastScannedData] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const [scanHistory,setScanHistory] = useState([])
 
   React.useEffect(() => {
     (async () => {
@@ -85,19 +84,6 @@ const CameraScreen = () => {
       setLastScannedData("");
     }
   };
-
-const saveToHistory = async (scanData) => {
-  const newScan = {
-    id: Date.now(),
-    data: scanData,
-    type: 'url',
-    timestamp: new Date().toISOString(),
-    favorite: false
-  };
-    const updatedHistory = [newScan, ...scanHistory];
-  setScanHistory(updatedHistory);
-  
-  await AsyncStorage.setItem('scanHistory', JSON.stringify(updatedHistory))
   
   if (hasPermission === null) {
     return (
