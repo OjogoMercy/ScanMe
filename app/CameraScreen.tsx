@@ -1,24 +1,68 @@
-import { StatusBar, StyleSheet, Text, View, Alert } from "react-native";
+import {
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { CameraView, Camera } from "expo-camera";
 import general from "@/constants/General";
 import { SCREEN_HEIGHT, SCREEN_WIDTH, Sizes } from "@/constants/Theme";
-import { useCameraPermissions } from "expo-camera";
 import * as Linking from "expo-linking";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CameraScreen = () => {
-  const [hasPermission, setHasPermission] = React.useState(null);
-  const [lastScannedData, setLastScannedData] = useState(null);
+  const [hasPermission, setHasPermission] = useState(null);
+  const [lastScannedData, setLastScannedData] = useState("");
   const [scanned, setScanned] = useState(false);
+  const [textModalVisible, setTextModalVisible] = useState(false);
+  const [currentText, setCurrentText] = useState("");
 
-  React.useEffect(() => {
+  useEffect(() => {
     (async () => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     })();
   }, []);
+
+  // Save scan to history
+  const saveToHistory = async (scanData, type) => {
+    try {
+      const newScan = {
+        id: Date.now(),
+        data: scanData,
+        type: type,
+        timestamp: new Date().toISOString(),
+      };
+
+      const existingHistory = await AsyncStorage.getItem("scanHistory");
+      const history = existingHistory ? JSON.parse(existingHistory) : [];
+      const updatedHistory = [newScan, ...history.slice(0, 49)]; // Keep last 50 scans
+
+      await AsyncStorage.setItem("scanHistory", JSON.stringify(updatedHistory));
+    } catch (error) {
+      console.log("Error saving to history:", error);
+    }
+  };
+
+  // Show text in modal
+  const showTextModal = (text) => {
+    setCurrentText(text);
+    setTextModalVisible(true);
+  };
+
+  // Handle WiFi connection (simplified)
+  const showWifiConnection = (wifiData) => {
+    Alert.alert(
+      "WiFi Network Detected",
+      "This app can't automatically connect to WiFi networks for security reasons. Please check your device settings.",
+      [{ text: "OK" }]
+    );
+  };
 
   const handleBarCodeScanned = async ({ data }) => {
     if (scanned || data === lastScannedData) return;
@@ -28,74 +72,120 @@ const CameraScreen = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     const scannedData = data.trim();
+    let result = {
+      type: "unknown",
+      displayData: scannedData,
+      action: null,
+    };
 
     try {
-      const canOpenURL = await Linking.canOpenURL(scannedData);
+      if (await Linking.canOpenURL(scannedData)) {
+        result = {
+          type: "url",
+          displayData: scannedData,
+          action: () => Linking.openURL(scannedData),
+        };
+      }
+      else if (scannedData.includes("@") && scannedData.includes(".")) {
 
-      if (canOpenURL) {
-        Alert.alert("QR Code Detected", `Open: ${scannedData}`, [
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test(scannedData)) {
+          result = {
+            type: "email",
+            displayData: scannedData,
+            action: () => Linking.openURL(`mailto:${scannedData}`),
+          };
+        } else {
+          result = {
+            type: "text",
+            displayData: scannedData,
+            action: () => showTextModal(scannedData),
+          };
+        }
+      }
+      else if (
+        /^[\+]?[1-9][\d]{0,15}$/.test(scannedData.replace(/[-\s\(\)]/g, ""))
+      ) {
+        result = {
+          type: "phone",
+          displayData: scannedData,
+          action: () => Linking.openURL(`tel:${scannedData}`),
+        };
+      }
+      else if (scannedData.startsWith("WIFI:")) {
+        result = {
+          type: "wifi",
+          displayData: "WiFi Network Configuration",
+          action: () => showWifiConnection(scannedData),
+        };
+      }
+      else {
+        result = {
+          type: "text",
+          displayData: scannedData,
+          action: () => showTextModal(scannedData),
+        };
+      }
+
+      await saveToHistory(scannedData, result.type);
+
+      Alert.alert(
+        `Detected: ${result.type.toUpperCase()}`,
+        result.displayData.length > 100
+          ? result.displayData.substring(0, 100) + "..."
+          : result.displayData,
+        [
           {
             text: "Cancel",
             style: "cancel",
-            onPress: () => {
-              setScanned(false);
-              setLastScannedData("");
-            },
+            onPress: () => resetScanner(),
           },
           {
-            text: "Open",
+            text: result.type === "wifi" ? "View" : "Open",
             onPress: async () => {
               try {
-                await Linking.openURL(scannedData);
+                if (result.action) {
+                  await result.action();
+                }
               } catch (error) {
                 Haptics.notificationAsync(
                   Haptics.NotificationFeedbackType.Error
                 );
-                Alert.alert("Error", "Unable to open the link.");
+                Alert.alert("Error", "Unable to perform the action.");
               } finally {
-                setTimeout(() => {
-                  setScanned(false);
-                  setLastScannedData("");
-                }, 2000);
+                resetScanner();
               }
             },
           },
-        ]);
-      } else {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-        Alert.alert(
-          "Invalid QR Code",
-          "This QR code doesn't contain a valid link.",
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                setScanned(false);
-                setLastScannedData("");
-              },
-            },
-          ]
-        );
-      }
+        ]
+      );
     } catch (error) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       Alert.alert("Scan Error", "Failed to process QR code.");
-      setScanned(false);
-      setLastScannedData("");
+      resetScanner();
     }
   };
-  
+
+  const resetScanner = () => {
+    setScanned(false);
+    setLastScannedData("");
+  };
+
   if (hasPermission === null) {
     return (
-      <View style={general.centered}>
+      <View style={general.container}>
         <Text>Requesting camera permission...</Text>
       </View>
     );
   }
+
   if (hasPermission === false) {
     return (
-      <View style={general.centered}>
+      <View style={general.container}>
         <Text>No access to camera</Text>
+        <Text style={{ marginTop: 10, fontSize: 12 }}>
+          Please enable camera permissions in your device settings
+        </Text>
       </View>
     );
   }
@@ -106,7 +196,7 @@ const CameraScreen = () => {
       <CameraView
         style={StyleSheet.absoluteFillObject}
         facing="back"
-        onBarcodeScanned={handleBarCodeScanned}
+        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
         barcodeScannerSettings={{
           barcodeTypes: ["qr", "ean13", "ean8", "code128", "pdf417"],
         }}
@@ -122,21 +212,94 @@ const CameraScreen = () => {
         </View>
         <View style={general.overlay}></View>
       </View>
+
+      {/* Text Modal */}
+      <Modal
+        visible={textModalVisible}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Scanned Text</Text>
+            <Text style={styles.modalText}>{currentText}</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setTextModalVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Scanning Indicator */}
+      {scanned && (
+        <View style={styles.scanningIndicator}>
+          <Text style={styles.scanningText}>Processing...</Text>
+        </View>
+      )}
     </View>
   );
 };
-export default CameraScreen;
 
+export default CameraScreen;
 const styles = StyleSheet.create({
   overlay: {
     backgroundColor: "black",
     opacity: 0.5,
-    width: "17%",
+    width: SCREEN_WIDTH * 0.17,
     height: SCREEN_HEIGHT * 0.4,
   },
   middleRow: {
     flexDirection: "row",
   },
-  top: { flex: 1 },
-  bottom: { flex: 1 },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: moderateScale(20),
+    borderRadius: moderateScale(10),
+    width: SCREEN_WIDTH * 0.8,
+    maxHeight: SCREEN_HEIGHT * 0.6,
+  },
+  modalTitle: {
+    fontSize: moderateScale(18),
+    fontWeight: "bold",
+    marginBottom: moderateScale(10),
+  },
+  modalText: {
+    fontSize: moderateScale(16),
+    marginBottom: moderateScale(20),
+  },
+  modalButton: {
+    backgroundColor: "#007AFF",
+    padding: moderateScale(12),
+    borderRadius: moderateScale(5),
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: moderateScale(14),
+  },
+  scanningIndicator: {
+    position: "absolute",
+    top: moderateScale(50),
+    alignSelf: "center",
+    backgroundColor: "rgba(0,0,0,0.7)",
+    paddingHorizontal: moderateScale(20),
+    paddingVertical: moderateScale(10),
+    borderRadius: moderateScale(20),
+  },
+  scanningText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: moderateScale(14),
+  },
 });
+

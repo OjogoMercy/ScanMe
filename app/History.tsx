@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { FlatList, Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import general from '@/constants/General';
@@ -44,13 +44,38 @@ const [history,setHistory] = useState<ScanData[]>([])
     const deleteScan = async (id: any) => {
         const updatedHistory = scanHistory.filter(item => item.id !== id);
         setHistory(updatedHistory)
-        await AsyncStorage.setItem('scanHistory', JSON.stringify(updatedHistory);
+        await AsyncStorage.setItem('scanHistory', JSON.stringify(updatedHistory));
     }
+    const favoriteScan = async (id: any) => {
+        const updatedHistory = scanHistory.map(item => item.id === id ? { ...item, favorite: !item.favorite } : item);
+        setHistory(updatedHistory)
+        await AsyncStorage.setItem('scanHistory', JSON.stringify(updatedHistory))
+    }
+
   return (
     <View style={general.container}>
       <Text>History</Text>
+      <FlatList
+        data={history}
+        renderItem={({ item }) => (
+          <View style={styles.historyItem}>
+            <Text>{item.data}</Text>
+            <View style={styles.actions}>
+              <TouchableOpacity onPress={() => Linking.openURL(item.data)}>
+                <Text>Open</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => favoriteScan(item.id)}>
+                <Text>{item.favorite ? "★" : "☆"}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => deleteScan(item.id)}>
+                <Text>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      />
     </View>
-  )
+  );
 }
 
 export default History
