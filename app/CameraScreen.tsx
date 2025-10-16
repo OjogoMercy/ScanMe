@@ -1,12 +1,4 @@
-import {
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-  Alert,
-  Modal,
-  TouchableOpacity,
-} from "react-native";
+import { StatusBar,  StyleSheet,  Text,  View,  Alert,  Modal,  TouchableOpacity,} from "react-native";
 import React, { useEffect, useState } from "react";
 import { CameraView, Camera } from "expo-camera";
 import general from "@/constants/General";
@@ -14,6 +6,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH, Sizes } from "@/constants/Theme";
 import * as Linking from "expo-linking";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {moderateScale} from 'react-native-size-matters'
 
 const CameraScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -29,7 +22,7 @@ const CameraScreen = () => {
     })();
   }, []);
 
-  // Save scan to history
+  // to Save scan to history
   const saveToHistory = async (scanData, type) => {
     try {
       const newScan = {
@@ -41,7 +34,7 @@ const CameraScreen = () => {
 
       const existingHistory = await AsyncStorage.getItem("scanHistory");
       const history = existingHistory ? JSON.parse(existingHistory) : [];
-      const updatedHistory = [newScan, ...history.slice(0, 49)]; // Keep last 50 scans
+      const updatedHistory = [newScan, ...history.slice(0, 49)]; // keep only as much as 50 scans
 
       await AsyncStorage.setItem("scanHistory", JSON.stringify(updatedHistory));
     } catch (error) {
@@ -49,13 +42,11 @@ const CameraScreen = () => {
     }
   };
 
-  // Show text in modal
   const showTextModal = (text) => {
     setCurrentText(text);
     setTextModalVisible(true);
   };
 
-  // Handle WiFi connection (simplified)
   const showWifiConnection = (wifiData) => {
     Alert.alert(
       "WiFi Network Detected",
@@ -201,7 +192,6 @@ const CameraScreen = () => {
           barcodeTypes: ["qr", "ean13", "ean8", "code128", "pdf417"],
         }}
       />
-
       {/* Overlay */}
       <View style={{ height: "100%", width: "100%" }}>
         <View style={general.overlay}></View>
@@ -212,7 +202,6 @@ const CameraScreen = () => {
         </View>
         <View style={general.overlay}></View>
       </View>
-
       {/* Text Modal */}
       <Modal
         visible={textModalVisible}
@@ -233,7 +222,6 @@ const CameraScreen = () => {
         </View>
       </Modal>
 
-      {/* Scanning Indicator */}
       {scanned && (
         <View style={styles.scanningIndicator}>
           <Text style={styles.scanningText}>Processing...</Text>
@@ -279,7 +267,7 @@ const styles = StyleSheet.create({
   modalButton: {
     backgroundColor: "#007AFF",
     padding: moderateScale(12),
-    borderRadius: moderateScale(5),
+    borderRadius: moderateScale(10),
     alignItems: "center",
   },
   modalButtonText: {
@@ -299,7 +287,7 @@ const styles = StyleSheet.create({
   scanningText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: moderateScale(14),
+    fontSize: moderateScale(18),
   },
 });
 

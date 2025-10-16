@@ -32,10 +32,14 @@ export default function Index() {
           resizeMode: "contain",
         }}
       />
-      <CustomButton title="Request Permissions" onPress={requestPermissions} />
-      <Link href='/CameraScreen' style={general.button}>
+      <View style={[general.row, {width:'60%'}]}>
+        <Link href={"/History"} style={general.button}>
+          <Text style={general.buttonText}>History</Text>
+        </Link>
+        <Link href="/CameraScreen" style={general.button}>
           <Text style={general.buttonText}>Scan Me</Text>
-      </Link>
+        </Link>
+      </View>
     </View>
   );
 }
