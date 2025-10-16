@@ -101,7 +101,7 @@ const CameraScreen = () => {
   }
 
   return (
-    <View style={general.centered}>
+    <View style={general.container}>
       <StatusBar hidden />
       <CameraView
         style={StyleSheet.absoluteFillObject}

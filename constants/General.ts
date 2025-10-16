@@ -2,13 +2,13 @@ import { StyleSheet } from "react-native";
 import { Colors,Sizes,FONTS,SCREEN_HEIGHT,SCREEN_WIDTH } from "./Theme";
 
 const general = StyleSheet.create({
-  container: {
+  AuthContainer: {
     flex: 1,
     paddingHorizontal: SCREEN_WIDTH * 0.05,
     paddingVertical: SCREEN_HEIGHT * 0.03,
     backgroundColor: Colors.white,
   },
-  centered: {
+  container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
