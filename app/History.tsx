@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   View,
   Alert,
+  StatusBar,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import general from "@/constants/General";
 import { useFocusEffect } from "@react-navigation/native";
 import { moderateScale } from "react-native-size-matters";
+import { Colors } from "@/constants/Theme";
 
 interface ScanData {
   id: number;
@@ -68,7 +70,8 @@ const History = () => {
   };
 
   return (
-    <View style={general.container}>
+    <View style={[general.container, { backgroundColor: Colors.sky }]}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.sky} />
       <Text style={styles.title}>Scan History</Text>
       {scanHistory.length === 0 ? (
         <View style={styles.emptyState}>
@@ -80,6 +83,7 @@ const History = () => {
       ) : (
         <FlatList
           data={scanHistory}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View style={styles.historyItem}>
               <View style={styles.itemHeader}>
@@ -115,7 +119,7 @@ const History = () => {
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.actionButton, styles.deleteButton]}
+                  style={[styles.actionButton, { backgroundColor: "#ffdbee" }]}
                   onPress={() => deleteScan(item.id)}
                 >
                   <Text style={styles.deleteText}>Delete</Text>
@@ -157,12 +161,8 @@ const styles = StyleSheet.create({
   historyItem: {
     backgroundColor: "white",
     padding: moderateScale(16),
-    borderRadius: moderateScale(8),
+    borderRadius: moderateScale(20),
     marginBottom: moderateScale(12),
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: moderateScale(1) },
-    shadowOpacity: 0.1,
-    shadowRadius: moderateScale(3),
     elevation: 2,
   },
   itemHeader: {
@@ -199,12 +199,9 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(14),
     fontWeight: "500",
   },
-  deleteButton: {
-    backgroundColor: "#ffebee",
-  },
+
   deleteText: {
     color: "#d32f2f",
     fontWeight: "500",
   },
 });
-

@@ -1,4 +1,12 @@
-import { StatusBar,  StyleSheet,  Text,  View,  Alert,  Modal,  TouchableOpacity,} from "react-native";
+import {
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  Modal,
+  TouchableOpacity,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { CameraView, Camera } from "expo-camera";
 import general from "@/constants/General";
@@ -6,7 +14,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH, Sizes } from "@/constants/Theme";
 import * as Linking from "expo-linking";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {moderateScale} from 'react-native-size-matters'
+import { moderateScale } from "react-native-size-matters";
 
 const CameraScreen = () => {
   const [hasPermission, setHasPermission] = useState(null);
@@ -68,7 +76,6 @@ const CameraScreen = () => {
       displayData: scannedData,
       action: null,
     };
-
     try {
       if (await Linking.canOpenURL(scannedData)) {
         result = {
@@ -76,9 +83,7 @@ const CameraScreen = () => {
           displayData: scannedData,
           action: () => Linking.openURL(scannedData),
         };
-      }
-      else if (scannedData.includes("@") && scannedData.includes(".")) {
-
+      } else if (scannedData.includes("@") && scannedData.includes(".")) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (emailRegex.test(scannedData)) {
           result = {
@@ -93,8 +98,7 @@ const CameraScreen = () => {
             action: () => showTextModal(scannedData),
           };
         }
-      }
-      else if (
+      } else if (
         /^[\+]?[1-9][\d]{0,15}$/.test(scannedData.replace(/[-\s\(\)]/g, ""))
       ) {
         result = {
@@ -102,15 +106,13 @@ const CameraScreen = () => {
           displayData: scannedData,
           action: () => Linking.openURL(`tel:${scannedData}`),
         };
-      }
-      else if (scannedData.startsWith("WIFI:")) {
+      } else if (scannedData.startsWith("WIFI:")) {
         result = {
           type: "wifi",
           displayData: "WiFi Network Configuration",
           action: () => showWifiConnection(scannedData),
         };
-      }
-      else {
+      } else {
         result = {
           type: "text",
           displayData: scannedData,
@@ -290,4 +292,3 @@ const styles = StyleSheet.create({
     fontSize: moderateScale(18),
   },
 });
-
